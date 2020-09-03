@@ -21,13 +21,10 @@
   ],
   "author": "Brian T Button",
   "license": "MIT",
-  "dependencies": {
-  },
-  "devDependencies": {
-  },
+  "dependencies": {},
+  "devDependencies": {},
   "bugs": {
     "url": "https://github.com/briantbutton/md5-wasm/issues"
   },
   "homepage": "https://github.com/briantbutton/md5-wasm#README.md"
 }
-
