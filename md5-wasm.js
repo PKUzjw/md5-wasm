@@ -8,9 +8,9 @@
 
 // *-*=*  *=*-* *-*=*  *=*-* *-*=*  *=*-* *-*=*  *=*-* *-*=*  *=*-* *-*=*  *=*-*
 // This contains two functions designed to achieve the same thing
-//   -> A WebAssembly function for larger files 
+//   -> A WebAssembly function for larger files
 //   -> A JavaScript function for the others
-// 
+//
 (function() {
 
   const atb             = typeof atob === "function" ? atob : typeof Buffer === "function" ? nodeATOB : identity,
@@ -18,6 +18,7 @@
         wasm            = WebAssembly && atb !== identity ? str2AB(wasmB64).buffer : false,
         crypt           = makeCrypt(),
         biteSize        = 240*16*16,
+        // biteSize        = 16*16,
         bounder         = Math.floor(biteSize*16*1.066666667),
         upperLimit      = 268435456-65536,
         parmTypeErrStr  = "Parameter must be Buffer, ArrayBuffer or Uint8Array",
@@ -38,17 +39,17 @@
 
   return md5WASM;
 
-  //  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  - 
+  //  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
   // This returns a Promise-like object (I was farting around, so sue me)
   // which supports '.catch' and '.then'
-  function md5WASM(data){
+function md5WASM(data){
     var   mem,memView,importObj,imports,len,buff,thenFun,catchFun,result,endTime;
     const md5JS         = makeMD5JS(),
           md5WA         = makeMD5WA(),
           returnObj     = {},
           startTime     = new Date().getTime();
 
-    returnObj["then"]   = function(fun){thenFun=fun;getThen();;return returnObj};
+    returnObj["then"]   = function(fun){thenFun=fun;getThen();return returnObj};
     returnObj["catch"]  = function(fun){catchFun=fun;return returnObj};
 
     // Sift the incoming parameter and the environment
@@ -68,19 +69,23 @@
         getCatch(new TypeError(parmTypeErrStr))
       }
     }
-
-    //  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  
+    //  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
     // Make some choices based on the size of the incoming data
     //   ~ Use WebAssembly or just JavaScript
     //   ~ If Webassemly, allocate appropriate memory
-    // 
+    //
     if ( buff ) {
       len               = buff.length;
+      console.log('wasm is: ', wasm)
+      console.log('len is: ', len)
+      console.log('bounder is: ', bounder)
       if ( wasm && len > bounder ) {
         if( len > upperLimit ) {
           getCatch(new Error(tooBigErrStr))
         }else{
+          console.log('typeof WebAssembly: ', typeof WebAssembly.Memory)
           mem           = new WebAssembly.Memory({initial:(len>32000000?len>64000000?len>128000000?4096:2048:1024:512)});
+          // mem           = new WebAssembly.Memory({initial:1, maximum:5});
           memView       = new Uint32Array(mem.buffer);
           imports       = {mem:mem,log:console.log};
           importObj     = {imports};
@@ -90,6 +95,7 @@
         getThen(md5JS(buff))
       }
     }
+
     return returnObj;
 
     function giterdone(obj){
@@ -150,7 +156,7 @@
           b             = getB();
           c             = getC();
           d             = getD();
-          md5Used++ 
+          md5Used++
         }else{
           aa            = a;
           bb            = b;
@@ -292,8 +298,10 @@
       setD              = exports.setD;
       setX              = exports.setX;
       memView           = mView;
-      digestbytes       = crypt.wordsToBytes(md5WA(message));
-      return options&&options.asBytes?digestbytes:crypt.bytesToHex(digestbytes)
+      // digestbytes       = crypt.wordsToBytes(md5WA(message));
+      // return options&&options.asBytes?digestbytes:crypt.bytesToHex(digestbytes)
+      console.log('------------WASM MD5-----------:')
+      return md5WA(message)
     }
   }
 
@@ -426,11 +434,15 @@
     };
 
     return function (message, options) {
-      var digestbytes = crypt.wordsToBytes(md5JS(message, options)),
-          result      = options&&options.asBytes ?
-                             digestbytes
-                            :crypt.bytesToHex(digestbytes);
-      return result
+      // var digestbytes = crypt.wordsToBytes(md5JS(message, options)),
+      //     result      = options&&options.asBytes ?
+      //                        digestbytes
+      //                       :crypt.bytesToHex(digestbytes);
+      // console.log('md5JS result is: :', md5JS(message, options))
+      // console.log('md5JS final result is: :', result)
+      // return result
+      console.log('--------md5 JS--------:')
+      return md5JS(message, options)
     }
   }
   function str2AB(str) {
