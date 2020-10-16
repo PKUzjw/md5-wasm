@@ -19,7 +19,7 @@
         crypt           = makeCrypt(),
         // biteSize        = 240*16*16,
         // biteSize        = 16*16,
-        biteSize        = 16,
+        biteSize        = 16 * 16,
         bounder         = Math.floor(biteSize*16*1.066666667),
         upperLimit      = 268435456-65536,
         parmTypeErrStr  = "Parameter must be Buffer, ArrayBuffer or Uint8Array",
